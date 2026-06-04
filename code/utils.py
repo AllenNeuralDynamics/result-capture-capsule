@@ -1,5 +1,5 @@
+import dataclasses
 import logging
-import pathlib
 
 import aind_session
 import codeocean.data_asset
@@ -8,6 +8,7 @@ import pydantic_settings
 import requests
 
 logger = logging.getLogger(__name__)
+
 
 class ComputationParams(pydantic_settings.BaseSettings):
     """Parameters passed to this capsule by Code Ocean's post-run hook or from the app-panel."""
@@ -31,6 +32,18 @@ class ComputationParams(pydantic_settings.BaseSettings):
             file_secret_settings,
         )
 
+
+def format_tags(
+    tags: list[str] | None,
+) -> list[str] | None:
+    if tags is None:
+        return None
+    new_tags = list(tags)
+    if any("_" in tag for tag in tags):
+        logger.info("Underscores are not supported in Code Ocean tags, replacing with spaces")
+        new_tags = [tag.replace("_", " ") for tag in new_tags]
+    return new_tags
+
 def get_data_asset_params_model(computation_id: pydantic.UUID4) -> codeocean.data_asset.DataAssetParams:
     co_client = aind_session.get_codeocean_client()
     for file in (
@@ -51,12 +64,15 @@ def get_data_asset_params_model(computation_id: pydantic.UUID4) -> codeocean.dat
         else:
             logger.info("Successfully parsed DataAssetParams from %s", file.path)
             source = codeocean.data_asset.Source(computation=codeocean.data_asset.ComputationSource(id=computation_id))
-            params = codeocean.data_asset.DataAssetParams(**params.to_dict() | {"source": source})
+            tags = format_tags(params.tags)
+            params = dataclasses.replace(params, source=source, tags=tags)
             logger.info("Updated `source` in DataAssetParams to point to computation")
             return params
     raise FileNotFoundError(f"No valid DataAssetParams JSON file found among computation results for computation {computation_id}")
         
+
 def create_data_asset(data_asset_params: codeocean.data_asset.DataAssetParams, wait_until_ready: bool = True) -> codeocean.data_asset.DataAsset:
+    data_asset_params = normalize_data_asset_params_tags(data_asset_params)
     co_client = aind_session.get_codeocean_client()
     created_asset = co_client.data_assets.create_data_asset(data_asset_params=data_asset_params)
     logger.info("Created new data asset with ID %s", created_asset.id)
