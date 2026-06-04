@@ -1,0 +1,25 @@
+{
+	"version": 1,
+	"base_image": "codeocean/mambaforge3:24.5.0-0-python3.12.4-ubuntu22.04",
+	"options": {
+		"registry_host_arg": true,
+		"git_ask_pass": true,
+		"mount_secrets": true
+	},
+	"installers": {
+		"pip3": {
+			"packages": [
+				{
+					"name": "aind-session",
+					"version": "0.3.22"
+				},
+				{
+					"name": "pydantic-settings",
+					"version": "2.14.1"
+				}
+			],
+			"options": {},
+			"pre_install_options": {}
+		}
+	}
+}
