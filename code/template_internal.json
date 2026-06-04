@@ -1,0 +1,13 @@
+{
+  "name": "<session_id>_<process_name>", // (computation creation timestamp will be appended automatically)"
+  "tags": [
+    "example tag" // no underscores allowed
+  ],
+  "mount": null, // defaults to same as name
+  "description": null,
+  "source": null, // replaced automatically with source computation
+  "target": null, // defaults to internal asset
+  "custom_metadata": null, // dict
+  "data_asset_ids": null,
+  "results_info": null
+}
