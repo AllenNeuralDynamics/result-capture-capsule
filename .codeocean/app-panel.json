@@ -1,0 +1,15 @@
+{
+	"version": 1,
+	"named_parameters": true,
+	"parameters": [
+		{
+			"id": "4IO9tcqLyGhQwJWc",
+			"name": "co_source_computation_id",
+			"param_name": "co_source_computation_id",
+			"description": "The id of the Code Ocean computation (aka result) to convert to a data asset. Must contain a valid DataAssetParams json at its root.",
+			"type": "text",
+			"value_type": "string",
+			"default_value": ""
+		}
+	]
+}
