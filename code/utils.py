@@ -1,5 +1,6 @@
 import dataclasses
 import logging
+import uuid
 
 import aind_session
 import codeocean.data_asset
@@ -12,8 +13,16 @@ logger = logging.getLogger(__name__)
 
 class ComputationParams(pydantic_settings.BaseSettings):
     """Parameters passed to this capsule by Code Ocean's post-run hook or from the app-panel."""
-    co_source_computation_id: pydantic.UUID4
+    co_source_computation_id: str
     co_source_exit_code: int = 0
+
+    @pydantic.field_validator("co_source_computation_id", mode="before")
+    @classmethod
+    def validate_co_source_computation_id(cls, value: object) -> str:
+        parsed_uuid = uuid.UUID(str(value))
+        if parsed_uuid.version != 4:
+            raise ValueError("co_source_computation_id must be a valid UUID4")
+        return str(parsed_uuid)
 
     @classmethod
     def settings_customise_sources(
