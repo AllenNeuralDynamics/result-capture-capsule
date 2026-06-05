@@ -1,6 +1,6 @@
 import logging
 
-from . import utils
+import utils
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, force=True)
