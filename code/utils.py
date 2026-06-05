@@ -73,7 +73,6 @@ def get_data_asset_params_model(computation_id: pydantic.UUID4) -> codeocean.dat
         
 
 def create_data_asset(data_asset_params: codeocean.data_asset.DataAssetParams, wait_until_ready: bool = True) -> codeocean.data_asset.DataAsset:
-    data_asset_params = get_data_asset_params_model(data_asset_params)
     co_client = aind_session.get_codeocean_client()
     created_asset = co_client.data_assets.create_data_asset(data_asset_params=data_asset_params)
     logger.info("Created new data asset with ID %s", created_asset.id)
