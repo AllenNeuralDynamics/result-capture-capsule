@@ -62,17 +62,18 @@ def get_data_asset_params_model(computation_id: pydantic.UUID4) -> codeocean.dat
         except pydantic.ValidationError as e:
             logger.warning("Validation error while attempting to parse DataAssetParams from %s: %s", file.path, e)
         else:
-            logger.info("Successfully parsed DataAssetParams from %s", file.path)
-            source = codeocean.data_asset.Source(computation=codeocean.data_asset.ComputationSource(id=computation_id))
-            tags = format_tags(params.tags)
-            params = dataclasses.replace(params, source=source, tags=tags)
-            logger.info("Updated `source` in DataAssetParams to point to computation")
-            return params
-    raise FileNotFoundError(f"No valid DataAssetParams JSON file found among computation results for computation {computation_id}")
+            break
+    else:
+        raise FileNotFoundError(f"No valid DataAssetParams JSON file found among computation results for computation {computation_id}")
+    logger.info("Successfully parsed DataAssetParams from %s", file.path)
+    source = codeocean.data_asset.Source(computation=codeocean.data_asset.ComputationSource(id=computation_id))
+    tags = format_tags(params.tags)
+    logger.info("Updating info in DataAssetParams")
+    return dataclasses.replace(params, source=source, tags=tags)
         
 
 def create_data_asset(data_asset_params: codeocean.data_asset.DataAssetParams, wait_until_ready: bool = True) -> codeocean.data_asset.DataAsset:
-    data_asset_params = normalize_data_asset_params_tags(data_asset_params)
+    data_asset_params = get_data_asset_params_model(data_asset_params)
     co_client = aind_session.get_codeocean_client()
     created_asset = co_client.data_assets.create_data_asset(data_asset_params=data_asset_params)
     logger.info("Created new data asset with ID %s", created_asset.id)
